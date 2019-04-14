@@ -1,5 +1,5 @@
 FROM jakubknejzlik/godog as builder
-WORKDIR /go/src/github.com/jakubknejzlik/godog-sql/database
+WORKDIR /go/src/github.com/jakubknejzlik/godog-sql
 COPY . .
 RUN go get -t ./...
 RUN godog -o /tmp/app
