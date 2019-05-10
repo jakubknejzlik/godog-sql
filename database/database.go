@@ -20,7 +20,7 @@ func NewDBWithString(urlString string) *sql.DB {
 		panic(err)
 	}
 
-	urlString = strings.Replace(urlString, u.Scheme+"://", "", 1)
+	urlString = getConnectionString(u)
 
 	db, err := sql.Open(u.Scheme, urlString)
 	if err != nil {
@@ -28,6 +28,18 @@ func NewDBWithString(urlString string) *sql.DB {
 	}
 	// db.LogMode(true)
 	return db
+}
+
+func getConnectionString(u *url.URL) string {
+	if u.Scheme == "postgres" {
+		password, _ := u.User.Password()
+		host := strings.Split(u.Host, ":")[0]
+		return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, u.Port(), u.User.Username(), password, strings.TrimPrefix(u.Path, "/"))
+	}
+	if u.Scheme != "sqlite3" {
+		u.Host = "tcp(" + u.Host + ")"
+	}
+	return strings.Replace(u.String(), u.Scheme+"://", "", 1)
 }
 
 func RowsToTable(rows *sql.Rows) (res [][]string, count int, err error) {
